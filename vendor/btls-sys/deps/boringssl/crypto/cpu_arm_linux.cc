@@ -22,6 +22,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+// This cross toolchain's glibc predates AT_HWCAP2 in its headers. The value
+// is a stable, architecture-independent kernel auxv tag number (see
+// linux/auxvec.h upstream), so it's safe to define it ourselves when missing.
+#ifndef AT_HWCAP2
+#define AT_HWCAP2 26
+#endif
+
 #include <openssl/mem.h>
 
 #include "cpu_arm_linux.h"

@@ -250,6 +250,11 @@ endif()
 
 add_definitions(-DBORINGSSL_IMPLEMENTATION)
 
+# This cross toolchain's glibc <inttypes.h> gates PRIx32/PRIX32/etc behind
+# __STDC_FORMAT_MACROS even in C++; bn.h explicitly says callers must define
+# this externally (see its comment above BN_HEX_FMT1).
+add_definitions(-D__STDC_FORMAT_MACROS)
+
 if(BUILD_SHARED_LIBS)
   add_definitions(-DBORINGSSL_SHARED_LIBRARY)
   # Enable position-independent code globally. This is needed because

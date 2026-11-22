@@ -1,0 +1,8 @@
+FROM ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:main
+
+# dpkg's database already lists libclang1-18 as installed, but the actual
+# .so files were stripped from this image (presumably to shrink it). Force
+# a reinstall so the real shared library is extracted back onto disk.
+RUN apt-get update && \
+    apt-get install -y --reinstall --no-install-recommends libclang1-18 && \
+    rm -rf /var/lib/apt/lists/*

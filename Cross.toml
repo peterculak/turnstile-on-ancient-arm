@@ -1,0 +1,5 @@
+[target.arm-unknown-linux-gnueabihf]
+image = "cfsolve-cross-armv6:local"
+
+[target.arm-unknown-linux-gnueabihf.env]
+passthrough = ["LIBCLANG_PATH"]

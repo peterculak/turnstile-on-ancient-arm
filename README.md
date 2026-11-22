@@ -1,3 +1,14 @@
+> **This is a fork of [chris124567/cfsolve](https://github.com/chris124567/cfsolve)**,
+> preserved here with fixes to cross-compile and run natively on a 32-bit ARMv6
+> Raspberry Pi 1 (2012) — hardware too old to run any modern browser at all.
+> See [`RESEARCH.md`](RESEARCH.md) for the full writeup: why a real browser is
+> categorically impossible on this chip, the five build bugs we hit and fixed
+> to get this compiling for ARMv6, and a real end-to-end run against a live
+> Cloudflare Turnstile widget with timing. The rest of this README is
+> upstream's own, unmodified. The fork preserves full upstream history, so
+> this keeps working even if the original repo (whose author has said they
+> won't maintain it much longer) disappears.
+
 # cfsolve
 
 cfsolve is a Rust library and command line tool that solves Cloudflare Turnstile

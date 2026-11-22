@@ -166,7 +166,9 @@ fn monotonic_us() -> i64 {
     // `std::time::Instant` reads this clock but hides its absolute value.
     let status = unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut time) };
     assert_eq!(status, 0, "CLOCK_MONOTONIC is unavailable");
-    time.tv_sec * 1_000_000 + time.tv_nsec / 1000
+    // `tv_sec`/`tv_nsec` are `i32` on 32-bit Linux targets (e.g. ARMv6) and `i64` on
+    // 64-bit ones; cast to `i64` before the arithmetic so this doesn't overflow on 32-bit.
+    time.tv_sec as i64 * 1_000_000 + time.tv_nsec as i64 / 1000
 }
 
 #[cfg(windows)]
