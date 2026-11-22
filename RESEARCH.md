@@ -40,27 +40,7 @@ This is not a performance problem — it's an instruction-set wall. NEON only
 exists from ARMv7 onward; Firefox has the same baseline now. No amount of
 patience or resource tuning gets a real browser running on ARMv6 silicon.
 
-## Part 1: a genuinely no-browser solve, using Cloudflare's own testing sitekey
-
-Before attempting the hard version, we proved the "no browser at all" concept
-end-to-end using Cloudflare's own [published testing keys](https://developers.cloudflare.com/turnstile/troubleshooting/testing/):
-the sitekey `1x00000000000000000000AA` always passes and its JS always produces
-one fixed, documented literal token: `XXXX.DUMMY.TOKEN.XXXX`. Knowing that fact
-is the entire "solve" — no JS execution, no fingerprinting, just a Python
-`urllib` POST of that literal string, verified for real against Cloudflare's
-live `siteverify` endpoint with the matching test secret key.
-
-See [`dummy-sitekey-ctf/`](dummy-sitekey-ctf/) for the Flask target
-(`app.py`) and the Pi 1 solver (`solver_pi1.py`, pure stdlib, zero
-dependencies). One real gotcha we found along the way: the "always passes"
-test *secret* key accepts **any** non-empty token, not just the documented
-dummy string — so the Flask app explicitly checks for the exact dummy token
-itself, otherwise the "challenge" is trivially beaten by posting garbage.
-
-This is a fun, legitimate demo, but it's not really "solving Turnstile" — it's
-knowing a documented shortcut. Part 2 is the real thing.
-
-## Part 2: cross-compiling a real no-browser solver for ARMv6
+## Cross-compiling a real no-browser solver for ARMv6
 
 [cfsolve](https://github.com/chris124567/cfsolve) (this repo's upstream) is a
 serious, from-scratch reimplementation: it parses and deobfuscates Cloudflare's
@@ -193,21 +173,21 @@ Usage: challenge <iframe-url> <output-directory> --fingerprint <fingerprint.json
 It runs. Exit code 0. The NEON wall that stops a real browser dead does not
 apply here at all.
 
-## Part 3: a real end-to-end solve against a live Cloudflare Turnstile widget
+## A real end-to-end solve against a live Cloudflare Turnstile widget
 
-To test this for real (not against a dummy sitekey), we created a genuine
-Cloudflare Turnstile widget (Managed mode) — no domain or DNS changes needed;
-new widgets automatically allow `localhost`/`127.0.0.1` as hostnames — pointed
-the Pi 1's compiled binary at a page serving that real widget, and ran:
+To test this for real, we created a genuine Cloudflare Turnstile widget
+(Managed mode) — no domain or DNS changes needed; new widgets automatically
+allow `localhost`/`127.0.0.1` as hostnames — pointed the Pi 1's compiled
+binary at a page serving that real widget, and ran:
 
 ```
 challenge --page http://<host>/real ./out --solve \
   --fingerprint profiles/safari-26-ios.json --sitekey <real-sitekey>
 ```
 
-Result: a genuine, full-length Turnstile token (not the trivial dummy-token
-format from Part 1), which our backend then submitted to Cloudflare's **real**
-`siteverify` API — not a simulation — and got back `"success": true`.
+Result: a genuine, full-length Turnstile token, which our backend then
+submitted to Cloudflare's **real** `siteverify` API — not a simulation — and
+got back `"success": true`.
 
 ### Timing breakdown (from file timestamps on the Pi)
 
@@ -240,8 +220,6 @@ on 13-year-old hardware, not a flaw in the approach itself.
 3. Copy `target/arm-unknown-linux-gnueabihf/release/challenge` and the
    `profiles/` directory to your ARMv6 device and run it directly — see the
    main `README.md` for full CLI usage.
-4. For the no-browser dummy-sitekey demo instead, see
-   [`dummy-sitekey-ctf/`](dummy-sitekey-ctf/).
 
 ## Credits
 
@@ -252,8 +230,6 @@ on 13-year-old hardware, not a flaw in the approach itself.
   real-browser-automation Turnstile solver that was the starting point for
   understanding how Turnstile works and how it's typically bypassed, before
   we went looking for a no-browser approach.
-- Cloudflare's own [Turnstile testing documentation](https://developers.cloudflare.com/turnstile/troubleshooting/testing/)
-  for the published dummy sitekey/secret behavior used in Part 1.
 
 ## Scope note
 
